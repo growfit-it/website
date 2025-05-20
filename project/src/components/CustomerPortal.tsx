@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import type { Customer, CurrentSubscription } from '../lib/types';
+import type { Customer, CurrentSubscription, ProductItem } from '../lib/types';
 
-type TabType = 'profile' | 'subscription';
+type TabType = 'profile' | 'subscription' | 'meals';
 
 export default function CustomerPortal() {
   const [activeTab, setActiveTab] = useState<TabType>('profile');
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [subscription, setSubscription] = useState<CurrentSubscription | null>(null);
+  const [meals, setMeals] = useState<ProductItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -49,13 +50,20 @@ export default function CustomerPortal() {
         .eq('customerId', customerData.id)
         .single();
 
-      // Only throw error if it's not a "no rows returned" error
       if (subscriptionError && subscriptionError.code !== 'PGRST116') {
         throw subscriptionError;
       }
       
-      // Set subscription data (will be null if no subscription found)
       setSubscription(subscriptionData || null);
+
+      // Get meals data
+      const { data: mealsData, error: mealsError } = await supabase
+        .from('productitems')
+        .select('*')
+        .eq('type', 'Bundled Meal');
+
+      if (mealsError) throw mealsError;
+      setMeals(mealsData || []);
 
     } catch (err) {
       setError(err.message);
@@ -139,7 +147,8 @@ export default function CustomerPortal() {
           <nav className="flex -mb-px">
             {[
               { id: 'profile', label: 'Profile' },
-              { id: 'subscription', label: 'Subscription' }
+              { id: 'subscription', label: 'Subscription' },
+              { id: 'meals', label: 'Meals' }
             ].map(tab => (
               <button
                 key={tab.id}
@@ -257,6 +266,36 @@ export default function CustomerPortal() {
                   </a>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Meals Tab */}
+          {activeTab === 'meals' && (
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold text-gray-900">Available Meals</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {meals.map(meal => (
+                  <div 
+                    key={meal.id}
+                    className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
+                  >
+                    <img
+                      src={`https://source.unsplash.com/featured/?food&${meal.id}`}
+                      alt={meal.name}
+                      className="w-full h-48 object-cover"
+                    />
+                    <div className="p-4">
+                      <h3 className="text-lg font-semibold text-gray-900">{meal.name}</h3>
+                      <p className="text-sm text-gray-500 mt-1">{meal.description}</p>
+                      <button 
+                        className="mt-4 w-full bg-primary text-white py-2 px-4 rounded-lg hover:bg-primary/90 transition-colors"
+                      >
+                        Select Meal
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>

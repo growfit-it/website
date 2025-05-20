@@ -5,71 +5,74 @@ const { language = "fi" } = Astro.props;
 const response = await fetch(`${API_BASE_URL}/api/heroes?filters[NameId][$eq]=LandingPage-Hero&pagination[limit]=1&populate[autoplay_video]=true&populate[ButtonGroup]=true&populate[BlogPosts][populate]=BlogPostPicture&locale=${language}`);
 const data = await response.json();
 const { title, highlighted_word, autoplay_video, BlogPosts, ButtonGroup } = data.data[0];
-
-
 ---
 
-<section class="pt-32 pb-20 bg-white-ish">
+<section class="pt-24 md:pt-36 pb-12 bg-white">
   <div class="container mx-auto px-6">
-    <div class="flex flex-col xl:flex-row items-center">
-      <!-- 1st column: title + blog posts -->
-      <div class="xl:w-1/3 w-full">
-        <!-- Titles + Call-to-action -->
-        <div class="mt-0 text-center mb-4 xl:mt-[67px]  xl:w-[410px] xl:h-[158px] xl:text-left" style="overflow:hidden;font-family: Coolvetica;font-weight: 400;font-size: 42px;line-height: 125%;color:#333333;" >
-          {title} <span class="text-secondary" style="font-family: 'Helvetica Neue'">{highlighted_word}</span>
-        </div>
-        <!-- BUTTON GROUP -->
-        <div class="flex gap-4 mb-16 xl:justify-start justify-center">
-          {ButtonGroup.map((button) => (
-            <a 
-              href={button.ButtonURL} 
-              class={`h-[36px] rounded-full px-8 inline-flex items-center transition-colors ${
-                button.ButtonType === 'primary' 
-                  ? 'bg-secondary text-white hover:bg-secondary/90' 
-                  : 'border-2 border-[#ccd8e5] text-primary hover:bg-primary/5'
-              }`} 
-              style="font-size: 14px"
-            >
-              {button.ButtonLabel}
-            </a>
-          ))}          
+    <div class="flex flex-col xl:flex-row items-stretch gap-8">
+
+      <!-- Left Column: Text & Content -->
+      <div class="xl:w-[40%] w-full flex flex-col md:items-center md:text-center xl:items-start xl:text-left justify-between md:justify-center xl:justify-between">
+        <!-- Title -->
+        <div>
+          <div class="mt-10 mb-6 text-[34px] xs:text-[36px] sm:text-[38px] md:text-[44px] xl:text-[42px] leading-[125%] font-normal" style="font-family: Coolvetica; color: #333;">
+            Real food, no shortcuts.<br />Feel great, eat better — <span class="text-secondary" style="font-family: 'Helvetica Neue'">{highlighted_word}</span>
+          </div>
+
+          <!-- Button Group -->
+          <div class="flex gap-4 mb-1 md:mb-10 mt-1 md:mt-0 justify-start md:justify-center xl:justify-start">
+            {ButtonGroup.map((button) => (
+              <a 
+                href={button.ButtonURL} 
+                class={`flex items-center justify-center box-border h-[48px] px-7 text-sm rounded-full transition-colors whitespace-nowrap ${
+                  button.ButtonType === 'primary'
+                    ? 'bg-secondary text-white hover:bg-secondary/90' 
+                    : 'border border-[#CCD8E5] text-primary hover:bg-primary/5 md:text-[#27486D]'
+                }`}
+              >
+                {button.ButtonLabel}
+              </a>
+            ))}
+          </div>
         </div>
 
         <!-- Blog Posts -->
-        <div class="hidden xl:block bg-primary-faded p-6 h-[284px] w-[418px] rounded-xl" style="overflow-x:hidden; overflow-y:hidden">
-          <div class="space-y-3">
+        <div class="hidden xl:block bg-primary-faded p-6 rounded-xl w-full">
+          <div class="space-y-4">
             {BlogPosts.map((post) => (
-              <div class="flex items-center gap-x-4">
-                <div class="w-[94px] h-[76px] flex-shrink-0 ">
+              <div class="flex items-center gap-4">
+                <div class="w-[94px] h-[76px] flex-shrink-0">
                   <img 
                     src={`${API_BASE_URL}${post.BlogPostPicture.formats.thumbnail.url}`}
                     alt={post.BlogPostPicture.alternativeText || post.Title}
                     class="w-full h-full object-cover rounded-lg"
                   />
                 </div>
-                <div style="font-size: 12px;">
-                  <p class="font-helvetica" style="color:#27486d;font-weight:700;">{post.BlogPostTitle}</p>
-                  <p class="font-helvetica" style="color:#27486d;font-weight:400;">{post.BlogPostDescription}</p>
+                <div class="text-sm">
+                  <p class="font-helvetica font-bold text-[#27486D]">{post.BlogPostTitle}</p>
+                  <p class="font-helvetica text-[#27486D] font-normal">{post.BlogPostDescription}</p>
                 </div>
               </div>
             ))}
           </div>
         </div>
       </div>
-      
-      <!-- 2nd column: video -->
-      <div class="h-[620px] xl:w-2/3 w-full relative overflow-hidden rounded-xl">
-        <video 
-          
-          loop 
-          muted 
-          playsinline
-          class="absolute inset-0 h-full w-auto object-cover"
-          poster=""
-        >
-          <source src={`${API_BASE_URL}${autoplay_video.url}`} type="video/mp4">
-        </video>
+
+      <!-- Right Column: Video -->
+      <div class="xl:w-[60%] w-full flex">
+        <div class="w-full relative overflow-hidden rounded-xl aspect-[300/319] md:aspect-[714/620] xl:aspect-auto flex-1">
+          <video 
+            autoplay 
+            loop 
+            muted 
+            playsinline
+            class="absolute inset-0 w-full h-full object-cover"
+          >
+            <source src={`${API_BASE_URL}${autoplay_video.url}`} type="video/mp4" />
+          </video>
+        </div>
       </div>
+
     </div>
   </div>
 </section>

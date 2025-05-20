@@ -19,6 +19,14 @@ export interface CurrentSubscription {
   type: SubscriptionType | null;
 }
 
+export interface ProductItem {
+  id: number;
+  name: string;
+  description: string;
+  type: ProductItemType;
+  price: number;
+}
+
 // Helper functions
 export function formatPrice(cents: number): string {
   return new Intl.NumberFormat('en-US', {

@@ -32,15 +32,25 @@ const { title = 'Growfit - Healthy Meal Delivery Service', description = 'Fresh,
     --accent-dark: 49, 10, 101;
     --accent-gradient: linear-gradient(45deg, rgb(var(--accent)), rgb(var(--accent-light)) 30%, white 60%);
   }
-  
+
+  /* Removed font-family override */
   html {
-    font-family: system-ui, sans-serif;
     background: #fff;
     background-size: 224px;
   }
-  
+
   code {
     font-family: Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono,
       Bitstream Vera Sans Mono, Courier New, monospace;
+  }
+
+  /* 👇 Add this to globally hide scrollbar for .custom-scroll */
+  .custom-scroll {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* Internet Explorer and Edge */
+  }
+
+  .custom-scroll::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
   }
 </style>
