@@ -43,10 +43,10 @@ const getUrl = (url: string) => {
       <div class="flex items-center space-x-4">
         <!-- Shopping Cart - Always Visible -->
         <div class="relative">
-          <button class="text-primary-600 hover:text-primary">
+          <button id="cartButton" class="text-primary-600 hover:text-primary">
             <Fragment set:html={ShoppingBagIcon} />
-            <div class="absolute bottom-0 right-0 bg-[#98C47C] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-              2
+            <div id="cartCount" class="absolute bottom-0 right-0 bg-[#98C47C] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+              0
             </div>
           </button>
         </div>
@@ -162,6 +162,19 @@ const getUrl = (url: string) => {
     const loginButton = document.getElementById('loginButton');
     const loginModal = document.getElementById('loginModal');
     const languageButtons = document.querySelectorAll('[data-lang]');
+    const cartButton = document.getElementById('cartButton');
+    const cartCount = document.getElementById('cartCount');
+
+    // Initialize cart count from localStorage
+    let count = parseInt(localStorage.getItem('cartCount') || '0');
+    if (cartCount) cartCount.textContent = count.toString();
+
+    // Handle cart click
+    cartButton?.addEventListener('click', () => {
+      count = (count + 1) % 10;
+      localStorage.setItem('cartCount', count.toString());
+      if (cartCount) cartCount.textContent = count.toString();
+    });
 
     const closeModal = () => {
       if (loginModal) loginModal.classList.add('hidden');
@@ -205,4 +218,5 @@ const getUrl = (url: string) => {
       }
     });
   });
+  
 </script>
