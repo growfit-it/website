@@ -1,0 +1,126 @@
+---
+import { ChevronLeftIcon, ChevronRightIcon } from '../icons';
+import {API_BASE_URL } from '../../config/api';
+
+const { language = "fi" } = Astro.props;
+
+// 1. STRAPI Call
+const endpoint = 'testemonials';
+const params = {
+  'locale': language,
+  'populate[image]':true
+};
+
+// Convert object to query string
+const url_params = Object.entries(params).map(([k, v]) => `${k}=${v}`).join('&');
+const response = await fetch(`${API_BASE_URL}/api/${endpoint}?${url_params}`);
+const data = await response.json();
+const testimonials = data.data;
+
+---
+
+<section class="py-20 bg-white">
+  <div class="container mx-auto px-6">
+    <div class="flex md:flex-row flex-col gap-12 items-center">
+      <!-- 1st: Column - Image -->
+      <div class="w-full md:w-1/2 relative rounded-2xl lg:h-[624px] md:h-[436px]" style="overflow:hidden;">
+        <div class="aspect-[4/5]" >
+          {testimonials.map((testimonial, index) => (
+            <img 
+              src={API_BASE_URL+testimonial.image.url} 
+              alt={`${testimonial.name}'s Transformation`}
+              class={`testimonial-image w-full h-full object-cover absolute inset-0 transition-opacity duration-300 ${index === 0 ? 'opacity-100' : 'opacity-0'}`}
+              data-index={index}
+            />
+          ))}
+        </div>
+      </div>
+
+	  <!-- 2nd: Column, White space on large screens -->
+	  <div class="hidden w-0 lg:block lg:w-1/12">&nbsp;</div>
+      <!-- 3rd: Column, Content (testemonial + navigation buttons ) -->
+      <div class="w-full md:w-1/2 lg:w-5/12">
+        <span class="text-sm font-medium uppercase tracking-wider text-gray-500">Case Stories</span>
+        <h2 class="text-4xl font-bold text-gray-900">Real People. Real Transformations</h2>
+        <p class="text-xl text-gray-600">See how Growfit customers have transformed their bodies and minds with nutrition, chef-prepared meals.</p>
+
+        <!-- Testimonial Carousel -->
+        <div class="relative mt-12">
+          <div class="bg-primary-faded rounded-2xl p-8" style="overflow:hidden">
+            <div id="testimonialSlides" class="space-y-8">
+              {testimonials.map((testimonial, index) => (
+                <div class={`testimonial-slide ${index === 0 ? 'block' : 'hidden'}`}>
+                  <div class="flex items-center gap-4 mb-4">
+                    <div>
+                      <h4 class="font-semibold text-gray-900">{testimonial.name}</h4>
+                      <p class="text-gray-500">{testimonial.transformation}</p>
+                    </div>
+                  </div>
+                  <p class="text-gray-700 italic">"{testimonial.quote}"</p>
+                </div>
+              ))}
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="flex gap-4 mt-8">
+              <button 
+                id="prevSlide"
+                class="w-12 h-12 rounded-full border-2 border-gray-200 flex items-center justify-center text-gray-400 transition-colors"
+              >
+                <Fragment set:html={ChevronLeftIcon} />
+              </button>
+              <button 
+                id="nextSlide"
+                class="w-12 h-12 rounded-full border-2 border-gray-200 flex items-center justify-center text-gray-400 transition-colors"
+              >
+                <Fragment set:html={ChevronRightIcon} />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  let currentSlide = 0;
+  const slides = document.querySelectorAll('.testimonial-slide');
+  const images = document.querySelectorAll('.testimonial-image');
+  const totalSlides = slides.length;
+
+  function showSlide(index: number) {
+    // Hide all slides and images
+    slides.forEach(slide => slide.classList.add('hidden'));
+    images.forEach(image => image.classList.remove('opacity-100'));
+    images.forEach(image => image.classList.add('opacity-0'));
+
+    // Show current slide and image
+    slides[index].classList.remove('hidden');
+    images[index].classList.remove('opacity-0');
+    images[index].classList.add('opacity-100');
+  }
+
+  function nextSlide() {
+    currentSlide = (currentSlide + 1) % totalSlides;
+    showSlide(currentSlide);
+  }
+
+  function prevSlide() {
+    currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+    showSlide(currentSlide);
+  }
+
+  document.getElementById('nextSlide')?.addEventListener('click', nextSlide);
+  document.getElementById('prevSlide')?.addEventListener('click', prevSlide);
+</script>
+
+<style>
+  .testimonial-slide {
+    transition: opacity 0.3s ease-in-out;
+  }
+
+  .testimonial-image {
+    transition: opacity 0.3s ease-in-out;
+  }
+</style>

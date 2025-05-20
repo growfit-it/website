@@ -1,0 +1,73 @@
+---
+const { language = "fi" } = Astro.props;
+import { API_BASE_URL } from '../../config/api';
+
+const response = await fetch(`${API_BASE_URL}/api/our-offer?populate[image]=true&populate[IconBullets][populate][BulletIcon]=true&populate[ButtonGroup]=true&locale=${language}`);
+const data = await response.json();
+const { title, highlighted_word, description, image, IconBullets, ButtonGroup } = data.data;
+
+const imageHtml = `<img src="${API_BASE_URL}${image.url}" alt="${image.alternativeText}" class="w-full h-[700px] object-cover rounded-2xl" />`;
+---
+
+<section class="py-20">
+  <div class="container mx-auto px-4 sm:px-6">
+    <div class="flex flex-col md:flex-row items-start gap-8 lg:gap-12">
+      <!-- Left Column -->
+      <div class="w-full md:w-1/2 lg:w-5/12">
+        <span class="text-sm font-medium uppercase tracking-wider text-secondary mb-4 block">We present:</span>
+        <h2 class="text-3xl sm:text-4xl font-bold mb-4">
+          {title} <span class="text-secondary">{highlighted_word}</span>
+        </h2>
+        <p class="text-lg sm:text-xl mb-8 sm:mb-12">{description}</p>
+
+        <!-- Mobile Image -->
+        <div class="block md:hidden mb-8">
+          <div class="aspect-[4/5] rounded-2xl overflow-hidden">
+            <Fragment set:html={imageHtml} />
+          </div>
+        </div>
+
+        <!-- Dynamic Icon Bullets -->
+        <div class="space-y-6 sm:space-y-8 mb-8 sm:mb-12">
+          {IconBullets.map((bullet) => (
+            <div class="flex items-start gap-4">
+              <div class="w-10 sm:w-12 h-10 sm:h-12 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
+                <img 
+                  src={`${API_BASE_URL}${bullet.BulletIcon.url}`} 
+                  alt={bullet.BulletTitle} 
+                  class="w-5 sm:w-6 h-5 sm:h-6 object-contain" 
+                />
+              </div>
+              <div>
+                <p class="text-base sm:text-lg text-gray-700">{bullet.BulletTitle}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <!-- Dynamic Buttons -->
+        <div class="flex flex-col sm:flex-row gap-4">
+          {ButtonGroup.map((button) => (
+            <a
+              href={button.ButtonURL}
+              class={`px-6 sm:px-8 py-3 sm:py-4 rounded-full text-base sm:text-lg font-semibold text-center transition-colors duration-200 ${
+                button.ButtonType === 'primary'
+                  ? 'bg-secondary text-white hover:bg-secondary/90'
+                  : 'border-2 border-primary text-primary bg-white hover:bg-primary hover:text-white'
+              }`}
+            >
+              {button.ButtonLabel}
+            </a>
+          ))}
+        </div>
+      </div>
+
+      <!-- Right Column (Image) - Hidden on mobile -->
+      <div class="hidden md:block md:w-1/2 lg:w-6/12">
+        <div class="sticky top-24">
+          <Fragment set:html={imageHtml} />
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

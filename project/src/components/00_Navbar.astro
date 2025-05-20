@@ -1,0 +1,208 @@
+---
+import LoginForm from './LoginForm';
+import { ShoppingBagIcon, UserIcon, GlobeIcon } from './icons';
+import { ASSETS_BASE_URL } from '../config/api';
+import { API_BASE_URL } from '../config/api';
+
+// 0. LANGUAGES
+const { language = "fi" } = Astro.props;
+const languages = [
+  { code: 'fi', name: 'Finnish' },
+  { code: 'en', name: 'English' },
+  { code: 'sv', name: 'Swedish' }
+];
+const languageName = languages.find(lang => lang.code === language)?.name || 'Finnish';
+
+// 1. CMS DATA
+const response = await fetch(`${API_BASE_URL}/api/nav-bars?populate[buttons]=true&populate[links]=true&populate[logo]=true&locale=${language}`);
+const data = await response.json();
+const { buttons, links, logo } = data.data[0];
+
+// Helper function to handle URL prefixing
+const getUrl = (url: string) => {
+  return url.startsWith('#') ? url : `/${language}${url}`;
+};
+---
+
+<nav class="fixed top-0 w-full bg-white shadow-md z-50">
+  <div class="container mx-auto px-6 py-4">
+    <div class="flex items-center justify-between">
+      <!-- Logo -->
+      <a href={`/${language}`} class="flex-shrink-0">
+        <img style="width: 150px" src={`${API_BASE_URL}${logo.url}`} alt="main-logo">
+      </a>
+
+      <!-- Desktop Navigation -->
+      <div class="hidden md:flex items-center space-x-8">
+        {links.map(link => (
+          <a href={getUrl(link.LinkUrl)} class="text-primary-600 hover:text-primary">{link.LinkLabel}</a>
+        ))}
+      </div>
+
+      <!-- Right Side Items -->
+      <div class="flex items-center space-x-4">
+        <!-- Shopping Cart - Always Visible -->
+        <div class="relative">
+          <button class="text-primary-600 hover:text-primary">
+            <Fragment set:html={ShoppingBagIcon} />
+            <div class="absolute bottom-0 right-0 bg-[#98C47C] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+              2
+            </div>
+          </button>
+        </div>
+
+        <!-- Desktop Action Buttons -->
+        <div class="hidden md:flex items-center space-x-4">
+          {buttons.map(button => (
+            <a 
+              href={getUrl(button.ButtonURL)} 
+              class={`${
+                button.ButtonType === 'primary'
+                  ? 'bg-secondary text-white hover:bg-secondary/90' 
+                  : 'border-2 border-[#ccd8e5] text-primary hover:bg-primary/5'
+              } px-6 py-2 rounded-full transition-colors`}
+            >
+              {button.ButtonLabel}
+            </a>
+          ))}
+        </div>
+
+        <!-- Language Selector - Desktop -->
+        <div class="hidden md:block relative group">
+          <button class="flex items-center space-x-2 text-primary-600 hover:text-primary">
+            <Fragment set:html={GlobeIcon} />
+            <span>{language.toUpperCase()}</span>
+          </button>
+          <div class="absolute right-0 mt-2 py-2 w-32 bg-white rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
+            {languages.map(lang => (
+              <button 
+                data-lang={lang.code}
+                class={`block w-full px-4 py-2 text-left text-primary-600 hover:bg-gray-100 ${language === lang.code ? 'bg-gray-50' : ''}`}
+              >
+                {lang.name}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <!-- Hamburger Menu Button -->
+        <button 
+          id="menuButton"
+          class="md:hidden p-2 rounded-lg hover:bg-gray-100 focus:outline-none"
+        >
+          <div class="w-6 h-0.5 bg-primary mb-1.5"></div>
+          <div class="w-6 h-0.5 bg-primary mb-1.5"></div>
+          <div class="w-6 h-0.5 bg-primary"></div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="hidden md:hidden">
+      <div class="pt-4 pb-3 space-y-3">
+        <!-- Language Selector - Mobile -->
+        <div class="px-4 py-2 mb-4 border-b border-gray-100">
+          <div class="flex items-center mb-2">
+            <Fragment set:html={GlobeIcon} />
+            <span class="ml-2 text-sm text-gray-500">Select Language</span>
+          </div>
+          <div class="grid grid-cols-3 gap-2">
+            {languages.map(lang => (
+              <button 
+                data-lang={lang.code}
+                class={`flex items-center justify-center px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  language === lang.code 
+                    ? 'bg-primary text-white' 
+                    : 'bg-gray-50 text-primary-600 hover:bg-gray-100'
+                }`}
+              >
+                {lang.code.toUpperCase()}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {links.map(link => (
+          <a 
+            href={getUrl(link.LinkUrl)} 
+            class="block px-4 py-2 text-primary-600 hover:bg-gray-100 rounded-lg"
+          >
+            {link.LinkLabel}
+          </a>
+        ))}
+        
+        <!-- Mobile Action Buttons -->
+        <div class="px-4 pt-2 space-y-2">
+          {buttons.map(button => (
+            <a 
+              href={getUrl(button.ButtonURL)} 
+              class={`block w-full py-2 rounded-lg text-center ${
+                button.ButtonType === 'primary'
+                  ? 'bg-secondary text-white hover:bg-secondary/90' 
+                  : 'border-2 border-[#ccd8e5] text-primary hover:bg-primary/5'
+              }`}
+            >
+              {button.ButtonLabel}
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div id="loginModal" class="hidden">
+  <LoginForm client:load />
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const menuButton = document.getElementById('menuButton');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const loginButton = document.getElementById('loginButton');
+    const loginModal = document.getElementById('loginModal');
+    const languageButtons = document.querySelectorAll('[data-lang]');
+
+    const closeModal = () => {
+      if (loginModal) loginModal.classList.add('hidden');
+    };
+
+    // Add close function to window for client component access
+    window.closeLoginModal = closeModal;
+
+    // Handle language selection
+    languageButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const lang = button.getAttribute('data-lang');
+        if (lang) {
+          localStorage.setItem('preferredLanguage', lang);
+          window.location.href = `/${lang}`;
+        }
+      });
+    });
+
+    // Toggle mobile menu
+    menuButton?.addEventListener('click', () => {
+      mobileMenu?.classList.toggle('hidden');
+    });
+
+    // Close mobile menu when clicking outside
+    document.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest('#menuButton') && !target.closest('#mobileMenu')) {
+        mobileMenu?.classList.add('hidden');
+      }
+    });
+
+    loginButton?.addEventListener('click', () => {
+      loginModal?.classList.remove('hidden');
+    });
+
+    // Close modal when clicking outside
+    loginModal?.addEventListener('click', (e) => {
+      if (e.target === loginModal) {
+        closeModal();
+      }
+    });
+  });
+</script>

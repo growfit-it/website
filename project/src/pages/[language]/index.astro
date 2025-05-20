@@ -1,0 +1,48 @@
+---
+export function getStaticPaths() {
+  return [
+    { params: { language: 'en' } },
+    { params: { language: 'fi' } },
+    { params: { language: 'sv' } },
+  ];
+}
+const { language = "fi" } = Astro.params;
+
+import { API_BASE_URL } from '../../config/api';
+import Navbar from '../../components/00_Navbar.astro';
+import Footer from '../../components/10_Footer.astro';
+import HeroSection from '../../components/landing-page/01_HeroSection.astro';
+import USPSection from '../../components/landing-page/03_USPSection.astro';
+import SocialProofSection from '../../components/landing-page/02_SocialProofSection.astro';
+import OurOffer from '../../components/landing-page/04_OurOffer.astro';
+import TestimonialsSection from '../../components/landing-page/05_TestimonialsSection.astro';
+import PartnerLogosSection from '../../components/landing-page/06_PartnerLogosSection.astro';
+
+const response2 = await fetch(API_BASE_URL+'/api/web-pages?filters[NameId][$eq]=landing-page&locale='+language+'&pagination[limit]=1');
+const data = await response2.json();
+const { title, description } = data.data;
+---
+<!doctype html>
+<html lang="{language}">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{title}</title>
+		<meta name="description" content="{description}" />
+		<style>
+			@import '../../styles/fonts.css';
+		</style>
+	</head>
+	<body class="font-helvetica">
+		<Navbar language={language} />
+		<HeroSection language={language} />
+		<SocialProofSection />
+		<USPSection language={language} />
+		<OurOffer language={language} />
+		<TestimonialsSection language={language} />
+		<PartnerLogosSection />
+		<Footer language={language} />
+	</body>
+</html>

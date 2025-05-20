@@ -1,0 +1,58 @@
+---
+const { language = "fi" } = Astro.props;
+import {API_BASE_URL } from '../../config/api';
+
+// 1. STRAPI Call
+const endpoint = 'unique-selling-points';
+const params = {
+  'populate[image]': true,
+  'locale': language
+};
+
+// Convert object to query string
+const url_params = Object.entries(params).map(([k, v]) => `${k}=${v}`).join('&');
+const response = await fetch(`${API_BASE_URL}/api/${endpoint}?${url_params}`);
+const data = await response.json();
+const uspPoints = data.data;
+
+---
+
+<section class="py-20">
+  <div class="container mx-auto px-6">
+    <h2 class="text-4xl font-bold text-gray-900 text-center mb-16">How Growfit Works</h2>
+    
+    <div class="space-y-24">
+      {uspPoints.map((point,index) => (        
+        <div class="flex flex-col md:flex-row gap-12 ">
+          <!-- 1st column: picture -->
+          <div class="w-full md:w-1/2">
+            <div class="bg-white rounded-xl overflow-hidden h-[562px]">
+              <img 
+                src={`${API_BASE_URL}${point.image.formats.large.url}`}
+                class="w-full h-full object-cover"
+                alt={point.title}
+              />
+            </div>
+          </div>          
+          <!-- 2nd column: index + text ( title + description) -->
+          <div class="w-full lg:w-5/12 md:w-1/2 flex flex-row">
+            <div class="w-1/5 justify-center pt-2 mr-8">
+              <div class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-white border-2 border-primary">
+                <span class="text-primary font-bold text-4xl">{String(index + 1).padStart(2, '0')}</span>
+              </div>
+            </div>
+            <!-- 3rd column: text (title + description) -->
+            <div class="w-4/5 font-helvetica">
+              <h3 class="text-4xl font-bold text-primary mb-2 " style="font-size:24px;">{point.title}</h3>
+              <p class="text-primary" style="font-size: 16px;">
+                {point.description}
+              </p>
+            </div>
+          </div>
+          <!-- 3rd column: empty space -->
+          <div class="hidden w-0 lg:block lg:w-1/12">&nbsp;</div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

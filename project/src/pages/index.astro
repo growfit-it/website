@@ -1,0 +1,24 @@
+---
+export const prerender = false;
+
+const defaultLanguage = 'fi';
+const supportedLanguages = ['fi', 'en', 'sv'];
+
+---
+
+<script>
+  // Get browser's preferred language
+  const userAgentPreferredLanguage = navigator.language.split('-')[0];
+  
+  // Check if preferred language is supported, otherwise use default
+  const isLanguageSupported = ['fi', 'en', 'sv'].includes(userAgentPreferredLanguage);
+  const defaultPreference = isLanguageSupported ? userAgentPreferredLanguage : 'fi';
+  
+  // Get stored language or use browser preference
+  const storedLanguage = localStorage.getItem('preferredLanguage') || defaultPreference;
+  window.location.href = `/${storedLanguage}`;
+</script>
+
+<noscript>
+  <meta http-equiv="refresh" content={`0;url=/${defaultLanguage}`} />
+</noscript>

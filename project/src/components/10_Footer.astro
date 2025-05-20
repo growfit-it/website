@@ -1,0 +1,80 @@
+---
+import { FacebookIcon, InstagramIcon, TwitterIcon } from './icons';
+import { ASSETS_BASE_URL } from '../config/api';
+
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="relative bg-gray-900 text-white py-16" style={`background-image: url('${ASSETS_BASE_URL}/assets/footer-background-img.jpg'); background-size: cover; background-position: center;`}>
+  <div class="container mx-auto px-6 relative">
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-12">
+      <!-- First Column -->
+      <div class="md:col-span-5">      
+        <img src={`${ASSETS_BASE_URL}/assets/growfit-logo-white.png`} alt="Growfit" class="h-20 mb-8" />
+        
+        <!-- Featured Slide -->
+        <div class="rounded-xl p-6">
+          <div class="flex gap-6">
+            <div>
+              <h3 class="text-xl font-semibold text-white mb-3">Growfit is sustainable at every step.</h3>
+              <p class="text-gray-300 mb-4">Delivered in eco-friendly packaging, designed to reduce waste without sacrificing convenience.</p>
+              <div class="flex gap-4">
+                <a href="/plan-selector" class="bg-secondary text-white px-6 py-2 rounded-full text-sm hover:bg-secondary/90">
+                  Start Now
+                </a>
+                <a href="/weekly-menu" class="border border-white text-white px-6 py-2 rounded-full text-sm hover:bg-white hover:text-gray-900">
+                  Read More
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Links -->
+      <div class="md:col-span-5">
+        <div class="grid grid-cols-2 gap-8">
+          <div>
+            <h4 class="text-white font-semibold mb-6">Quick Links</h4>
+            <ul class="space-y-4">
+              <li><a href="/weekly-menu" class="text-white hover:text-secondary">Weekly Menu</a></li>
+              <li><a href="/plan-selector" class="text-white hover:text-secondary">Meal Plans</a></li>
+              <li><a href="/about" class="text-white hover:text-secondary">About Us</a></li>
+              <li><a href="/faq" class="text-white hover:text-secondary">FAQ</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="text-white font-semibold mb-6">Contact Information</h4>
+            <ul class="space-y-4">
+              <li>+358417236964</li>
+              <li>info@growfit.fi</li>            
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Social Links -->
+      <div class="md:col-span-2">
+        <h4 class="text-white font-semibold mb-6">Follow Us</h4>
+        <div class="flex space-x-4">
+          <a href="#" class="text-white hover:text-secondary">
+            <span class="sr-only">Facebook</span>
+            <Fragment set:html={FacebookIcon} />
+          </a>
+          <a href="#" class="text-white hover:text-secondary">
+            <span class="sr-only">Instagram</span>
+            <Fragment set:html={InstagramIcon} />
+          </a>
+          <a href="#" class="text-white hover:text-secondary">
+            <span class="sr-only">Twitter</span>
+            <Fragment set:html={TwitterIcon} />
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-12 pt-8 border-t border-gray-700 text-center text-white">
+      <p>&copy; {currentYear} Growfit. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
