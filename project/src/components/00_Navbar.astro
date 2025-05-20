@@ -1,10 +1,9 @@
 ---
 import LoginForm from './LoginForm';
-import { ShoppingBagIcon, UserIcon, GlobeIcon } from './icons';
-import { ASSETS_BASE_URL } from '../config/api';
+import { ShoppingBagIcon, GlobeIcon } from './icons';
 import { API_BASE_URL } from '../config/api';
 
-// 0. LANGUAGES
+// Language handling
 const { language = "fi" } = Astro.props;
 const languages = [
   { code: 'fi', name: 'Finnish' },
@@ -13,35 +12,34 @@ const languages = [
 ];
 const languageName = languages.find(lang => lang.code === language)?.name || 'Finnish';
 
-// 1. CMS DATA
+// Fetch CMS data
 const response = await fetch(`${API_BASE_URL}/api/nav-bars?populate[buttons]=true&populate[links]=true&populate[logo]=true&locale=${language}`);
 const data = await response.json();
 const { buttons, links, logo } = data.data[0];
 
-// Helper function to handle URL prefixing
-const getUrl = (url: string) => {
-  return url.startsWith('#') ? url : `/${language}${url}`;
-};
+
+// URL Helper
+const getUrl = (url: string) => { if (url.startsWith('#') || url.startsWith('javascript:') || url.startsWith('http')) {return url;}return `/${language}${url}`;};
 ---
 
-<nav class="fixed top-0 w-full bg-white shadow-md z-50">
+<nav class="fixed top-0 w-full bg-white shadow-lg z-50">
   <div class="container mx-auto px-6 py-4">
     <div class="flex items-center justify-between">
-      <!-- Logo -->
-      <a href={`/${language}`} class="flex-shrink-0">
-        <img style="width: 150px" src={`${API_BASE_URL}${logo.url}`} alt="main-logo">
-      </a>
+      <!-- Left Group -->
+      <div class="flex items-center space-x-8">
+        <a href={`/${language}`} class="flex-shrink-0">
+          <img style="width: 150px" src={`${API_BASE_URL}${logo.url}`} alt="main-logo">
+        </a>
 
-      <!-- Desktop Navigation -->
-      <div class="hidden md:flex items-center space-x-8">
-        {links.map(link => (
-          <a href={getUrl(link.LinkUrl)} class="text-primary-600 hover:text-primary">{link.LinkLabel}</a>
-        ))}
+        <div class="hidden lg:flex items-center space-x-8">
+          {links.map(link => (
+            <a href={getUrl(link.LinkUrl)} class="text-primary-600 hover:text-primary">{link.LinkLabel}</a>
+          ))}
+        </div>
       </div>
 
-      <!-- Right Side Items -->
+      <!-- Right Group -->
       <div class="flex items-center space-x-4">
-        <!-- Shopping Cart - Always Visible -->
         <div class="relative">
           <button id="cartButton" class="text-primary-600 hover:text-primary">
             <Fragment set:html={ShoppingBagIcon} />
@@ -51,24 +49,24 @@ const getUrl = (url: string) => {
           </button>
         </div>
 
-        <!-- Desktop Action Buttons -->
-        <div class="hidden md:flex items-center space-x-4">
+        <!-- Desktop Buttons -->
+        <div class="hidden lg:flex items-center space-x-4">          
           {buttons.map(button => (
-            <a 
+            <a               
               href={getUrl(button.ButtonURL)} 
-              class={`${
+              class={`flex items-center justify-center h-[44px] px-6 ${
                 button.ButtonType === 'primary'
                   ? 'bg-secondary text-white hover:bg-secondary/90' 
-                  : 'border-2 border-[#ccd8e5] text-primary hover:bg-primary/5'
-              } px-6 py-2 rounded-full transition-colors`}
+                  : 'border-2 border-[#27486D] text-primary hover:bg-primary/5'
+              } rounded-full transition-colors`}
             >
               {button.ButtonLabel}
             </a>
           ))}
         </div>
 
-        <!-- Language Selector - Desktop -->
-        <div class="hidden md:block relative group">
+        <!-- Language Selector -->
+        <div class="hidden lg:block relative group">
           <button class="flex items-center space-x-2 text-primary-600 hover:text-primary">
             <Fragment set:html={GlobeIcon} />
             <span>{language.toUpperCase()}</span>
@@ -85,11 +83,8 @@ const getUrl = (url: string) => {
           </div>
         </div>
 
-        <!-- Hamburger Menu Button -->
-        <button 
-          id="menuButton"
-          class="md:hidden p-2 rounded-lg hover:bg-gray-100 focus:outline-none"
-        >
+        <!-- Mobile Menu Button -->
+        <button id="menuButton" class="lg:hidden p-2 rounded-lg hover:bg-gray-100 focus:outline-none">
           <div class="w-6 h-0.5 bg-primary mb-1.5"></div>
           <div class="w-6 h-0.5 bg-primary mb-1.5"></div>
           <div class="w-6 h-0.5 bg-primary"></div>
@@ -98,9 +93,9 @@ const getUrl = (url: string) => {
     </div>
 
     <!-- Mobile Menu -->
-    <div id="mobileMenu" class="hidden md:hidden">
+    <div id="mobileMenu" class="hidden lg:hidden">
       <div class="pt-4 pb-3 space-y-3">
-        <!-- Language Selector - Mobile -->
+        <!-- Mobile Language Selector -->
         <div class="px-4 py-2 mb-4 border-b border-gray-100">
           <div class="flex items-center mb-2">
             <Fragment set:html={GlobeIcon} />
@@ -110,10 +105,8 @@ const getUrl = (url: string) => {
             {languages.map(lang => (
               <button 
                 data-lang={lang.code}
-                class={`flex items-center justify-center px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  language === lang.code 
-                    ? 'bg-primary text-white' 
-                    : 'bg-gray-50 text-primary-600 hover:bg-gray-100'
+                class={`px-3 py-2 rounded-lg text-sm transition-colors ${
+                  language === lang.code ? 'bg-primary text-white' : 'bg-gray-50 text-primary-600 hover:bg-gray-100'
                 }`}
               >
                 {lang.code.toUpperCase()}
@@ -123,23 +116,20 @@ const getUrl = (url: string) => {
         </div>
 
         {links.map(link => (
-          <a 
-            href={getUrl(link.LinkUrl)} 
-            class="block px-4 py-2 text-primary-600 hover:bg-gray-100 rounded-lg"
-          >
+          <a href={getUrl(link.LinkUrl)} class="block px-4 py-2 text-primary-600 hover:bg-gray-100 rounded-lg">
             {link.LinkLabel}
           </a>
         ))}
-        
-        <!-- Mobile Action Buttons -->
-        <div class="px-4 pt-2 space-y-2">
+
+        <!-- Mobile Buttons -->
+        <div class="px-4 space-y-2">          
           {buttons.map(button => (
             <a 
               href={getUrl(button.ButtonURL)} 
               class={`block w-full py-2 rounded-lg text-center ${
                 button.ButtonType === 'primary'
                   ? 'bg-secondary text-white hover:bg-secondary/90' 
-                  : 'border-2 border-[#ccd8e5] text-primary hover:bg-primary/5'
+                  : 'border-2 border-[#27486D] text-primary hover:bg-primary/5'
               }`}
             >
               {button.ButtonLabel}
@@ -151,72 +141,43 @@ const getUrl = (url: string) => {
   </div>
 </nav>
 
-<div id="loginModal" class="hidden">
+<div id="loginModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50">
   <LoginForm client:load />
 </div>
 
+<!-- JavaScript -->
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const menuButton = document.getElementById('menuButton');
-    const mobileMenu = document.getElementById('mobileMenu');
-    const loginButton = document.getElementById('loginButton');
-    const loginModal = document.getElementById('loginModal');
-    const languageButtons = document.querySelectorAll('[data-lang]');
-    const cartButton = document.getElementById('cartButton');
-    const cartCount = document.getElementById('cartCount');
+document.addEventListener('DOMContentLoaded', () => {
+  const menuButton = document.getElementById('menuButton');
+  const mobileMenu = document.getElementById('mobileMenu');
+  const loginButtons = document.querySelectorAll('#loginButton');
+  const loginModal = document.getElementById('loginModal');
+  const languageButtons = document.querySelectorAll('[data-lang]');
+  const cartButton = document.getElementById('cartButton');
+  const cartCount = document.getElementById('cartCount');
 
-    // Initialize cart count from localStorage
-    let count = parseInt(localStorage.getItem('cartCount') || '0');
-    if (cartCount) cartCount.textContent = count.toString();
+  let count = parseInt(localStorage.getItem('cartCount') || '0');
+  cartCount.textContent = count;
 
-    // Handle cart click
-    cartButton?.addEventListener('click', () => {
-      count = (count + 1) % 10;
-      localStorage.setItem('cartCount', count.toString());
-      if (cartCount) cartCount.textContent = count.toString();
-    });
-
-    const closeModal = () => {
-      if (loginModal) loginModal.classList.add('hidden');
-    };
-
-    // Add close function to window for client component access
-    window.closeLoginModal = closeModal;
-
-    // Handle language selection
-    languageButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        const lang = button.getAttribute('data-lang');
-        if (lang) {
-          localStorage.setItem('preferredLanguage', lang);
-          window.location.href = `/${lang}`;
-        }
-      });
-    });
-
-    // Toggle mobile menu
-    menuButton?.addEventListener('click', () => {
-      mobileMenu?.classList.toggle('hidden');
-    });
-
-    // Close mobile menu when clicking outside
-    document.addEventListener('click', (e) => {
-      const target = e.target as HTMLElement;
-      if (!target.closest('#menuButton') && !target.closest('#mobileMenu')) {
-        mobileMenu?.classList.add('hidden');
-      }
-    });
-
-    loginButton?.addEventListener('click', () => {
-      loginModal?.classList.remove('hidden');
-    });
-
-    // Close modal when clicking outside
-    loginModal?.addEventListener('click', (e) => {
-      if (e.target === loginModal) {
-        closeModal();
-      }
-    });
+  cartButton.addEventListener('click', () => {
+    count = (count + 1) % 10;
+    localStorage.setItem('cartCount', count);
+    cartCount.textContent = count;
   });
-  
+
+  loginButtons.forEach(btn => btn.addEventListener('click', () => loginModal.classList.remove('hidden')));
+  window.closeLoginModal = () => loginModal.classList.add('hidden');
+
+  languageButtons.forEach(button => button.addEventListener('click', () => {
+    const lang = button.getAttribute('data-lang');
+    localStorage.setItem('preferredLanguage', lang);
+    window.location.href = `/${lang}`;
+  }));
+
+  menuButton.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('#menuButton, #mobileMenu')) mobileMenu.classList.add('hidden');
+    if (e.target === loginModal) loginModal.classList.add('hidden');
+  });
+});
 </script>

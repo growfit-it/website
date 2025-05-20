@@ -20,33 +20,20 @@ export default function LoginForm() {
     setLoading(true);
 
     try {
-      if (isSignUp) {
-        // Handle sign up
+      // 1. Handle SIGN UP
+      if (isSignUp) {        
         const { error: signUpError } = await supabase.auth.signUp({
           email,
           password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/account`
-          }
+          options: {emailRedirectTo: `${window.location.origin}/account`}
         });
-        if (signUpError) throw signUpError;
-
-        // Create customer record
-        const { error: customerError } = await supabase
-          .from('customers')
-          .insert([{
-            name: email.split('@')[0], // Temporary name from email
-            email: email,
-            subscription_status: 'active',
-            subscription_type: 'Chef\'s Choice'
-          }]);
-
-        if (customerError) throw customerError;
+        if (signUpError) throw signUpError;        
 
         window.closeLoginModal();
         window.location.href = '/account';
-      } else {
-        // Handle sign in
+      } 
+      // 2. Handle SIGN IN
+      else {        
         const { error: signInError } = await supabase.auth.signInWithPassword({
           email,
           password,
@@ -55,7 +42,7 @@ export default function LoginForm() {
 
         // Check if customer record exists
         const { data: customer, error: customerError } = await supabase
-          .from('customers')
+          .from('Customers')
           .select('*')
           .eq('email', email)
           .single();
@@ -63,21 +50,12 @@ export default function LoginForm() {
         if (customerError && customerError.code !== 'PGRST116') throw customerError;
 
         // Create customer record if it doesn't exist
-        if (!customer) {
-          const { error: createError } = await supabase
-            .from('customers')
-            .insert([{
-              name: email.split('@')[0], // Temporary name from email
-              email: email,
-              subscription_status: 'active',
-              subscription_type: 'Chef\'s Choice'
-            }]);
-
-          if (createError) throw createError;
-        }
+        if (!customer) { alert("Customer does not exist in the database");}
 
         window.closeLoginModal();
-        window.location.href = '/account';
+        let url = `${window.location.origin}/account`;
+        
+        window.location.href = url;
       }
     } catch (err) {
       setError(err.message);
