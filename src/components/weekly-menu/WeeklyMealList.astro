@@ -1,0 +1,87 @@
+---
+const { language = "fi" } = Astro.props;
+
+// Sample meals data - in a real app, this would come from an API or database
+const meals = [
+  {
+    id: 1,
+    title: 'Grilled Salmon Bowl',
+    description: 'Fresh Atlantic salmon with quinoa, roasted vegetables, and lemon-dill sauce',
+    image: 'https://images.pexels.com/photos/3655916/pexels-photo-3655916.jpeg',
+    tags: ['clean', 'pescatarian']
+  },
+  {
+    id: 2,
+    title: 'Keto Chicken Alfredo',
+    description: 'Zucchini noodles with grilled chicken and creamy keto-friendly Alfredo sauce',
+    image: 'https://images.pexels.com/photos/2338407/pexels-photo-2338407.jpeg',
+    tags: ['keto', 'clean']
+  },
+  {
+    id: 3,
+    title: 'Vegan Buddha Bowl',
+    description: 'Colorful bowl with chickpeas, sweet potato, kale, and tahini dressing',
+    image: 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg',
+    tags: ['plant-based', 'clean']
+  },
+  {
+    id: 4,
+    title: 'Mediterranean Fish Stew',
+    description: 'White fish and shellfish in a rich tomato and herb broth',
+    image: 'https://images.pexels.com/photos/699953/pexels-photo-699953.jpeg',
+    tags: ['pescatarian', 'clean']
+  },
+  {
+    id: 5,
+    title: 'Cauliflower Rice Stir-Fry',
+    description: 'Low-carb stir-fry with eggs, vegetables, and Asian-inspired sauce',
+    image: 'https://images.pexels.com/photos/723198/pexels-photo-723198.jpeg',
+    tags: ['keto', 'clean']
+  },
+  {
+    id: 6,
+    title: 'Quinoa Power Bowl',
+    description: 'Protein-rich quinoa with roasted vegetables and chickpeas',
+    image: 'https://images.pexels.com/photos/1095550/pexels-photo-1095550.jpeg',
+    tags: ['plant-based', 'clean']
+  }
+];
+
+const tagColors = {
+  'clean': 'bg-blue-100 text-blue-800',
+  'keto': 'bg-purple-100 text-purple-800',
+  'plant-based': 'bg-green-100 text-green-800',
+  'pescatarian': 'bg-cyan-100 text-cyan-800'
+};
+---
+
+<section class="py-16">
+  <div class="container mx-auto px-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {meals.map(meal => (
+        <article class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+          <div class="relative h-48">
+            <img 
+              src={meal.image} 
+              alt={meal.title}
+              class="w-full h-full object-cover"
+            />
+          </div>
+          
+          <div class="p-6">
+            <h3 class="text-xl font-bold text-gray-900 mb-2">{meal.title}</h3>
+            <p class="text-gray-600 mb-4">{meal.description}</p>
+            
+            <div class="flex flex-wrap gap-2">
+              {meal.tags.map(tag => (
+                <span class={`px-3 py-1 rounded-full text-sm font-medium ${tagColors[tag]}`}>
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>

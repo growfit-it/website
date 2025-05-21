@@ -1,0 +1,14 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/00_Navbar.astro';
+import Footer from '../components/10_Footer.astro';
+import CustomerPortal from '../components/CustomerPortal';
+
+const { language = "fi" } = Astro.params;
+---
+
+<Layout title="My Account - Growfit">
+  <Navbar language={language} />
+  <CustomerPortal client:load />
+  <Footer language={language} />
+</Layout>

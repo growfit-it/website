@@ -14,25 +14,77 @@ export default function LoginForm() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const handleGoogleSignIn = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
+          redirectTo: `${window.location.origin}/account`
+        }
+      });
+      
+      if (error) throw error;
+      
+      // Close modal if sign in was successful
+      if (data) window.closeLoginModal();
+      
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFacebookSignIn = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'facebook',
+        options: {
+          redirectTo: `${window.location.origin}/account`
+        }
+      });
+      
+      if (error) throw error;
+      
+      // Close modal if sign in was successful
+      if (data) window.closeLoginModal();
+      
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
     try {
-      // 1. Handle SIGN UP
+      // Handle SIGN UP
       if (isSignUp) {        
         const { error: signUpError } = await supabase.auth.signUp({
           email,
           password,
-          options: {emailRedirectTo: `${window.location.origin}/account`}
+          options: {
+            emailRedirectTo: `${window.location.origin}/account`
+          }
         });
         if (signUpError) throw signUpError;        
 
         window.closeLoginModal();
         window.location.href = '/account';
       } 
-      // 2. Handle SIGN IN
+      // Handle SIGN IN
       else {        
         const { error: signInError } = await supabase.auth.signInWithPassword({
           email,
@@ -50,12 +102,10 @@ export default function LoginForm() {
         if (customerError && customerError.code !== 'PGRST116') throw customerError;
 
         // Create customer record if it doesn't exist
-        if (!customer) { alert("Customer does not exist in the database");}
+        if (!customer) { alert("Customer does not exist in the database"); }
 
         window.closeLoginModal();
-        let url = `${window.location.origin}/account`;
-        
-        window.location.href = url;
+        window.location.href = '/account';
       }
     } catch (err) {
       setError(err.message);
@@ -91,6 +141,45 @@ export default function LoginForm() {
             {error}
           </div>
         )}
+
+        <div className="grid grid-cols-2 gap-3 mb-6">
+          <button
+            type="button"
+            onClick={handleGoogleSignIn}
+            disabled={loading}
+            className="flex items-center justify-center gap-3 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <img 
+              src="https://www.google.com/favicon.ico" 
+              alt="Google" 
+              className="w-5 h-5"
+            />
+            <span>Google</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleFacebookSignIn}
+            disabled={loading}
+            className="flex items-center justify-center gap-3 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <img 
+              src="https://www.facebook.com/favicon.ico" 
+              alt="Facebook" 
+              className="w-5 h-5"
+            />
+            <span>Facebook</span>
+          </button>
+        </div>
+
+        <div className="relative mb-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-300"></div>
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-2 bg-white text-gray-500">Or continue with email</span>
+          </div>
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>

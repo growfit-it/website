@@ -1,0 +1,35 @@
+---
+import { API_BASE_URL } from '../../config/api';
+
+const { language = "fi" } = Astro.props;
+
+const response = await fetch(`${API_BASE_URL}/api/heroes?filters[NameId][$eq]=WeeklyMenu-Hero&populate[ButtonGroup]=true&locale=${language}`);
+const data = await response.json();
+const { title, highlighted_word, description, ButtonGroup } = data.data[0];
+---
+
+<section class="pt-32 pb-16 bg-primary-faded">
+  <div class="container mx-auto px-6">
+    <div class="max-w-3xl mx-auto text-center">
+      <h1 class="text-4xl md:text-5xl font-coolvetica mb-6">
+        {title} <span class="text-secondary">{highlighted_word}</span>
+      </h1>
+      <p class="text-lg md:text-xl text-gray-600 mb-8">{description}</p>
+      
+      <div class="flex flex-wrap justify-center gap-4">
+        {ButtonGroup?.map((button) => (
+          <a 
+            href={button.ButtonURL} 
+            class={`inline-flex items-center px-6 py-3 rounded-full text-sm font-medium transition-colors ${
+              button.ButtonType === 'primary'
+                ? 'bg-secondary text-white hover:bg-secondary/90'
+                : 'border border-primary text-primary hover:bg-primary hover:text-white'
+            }`}
+          >
+            {button.ButtonLabel}
+          </a>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
