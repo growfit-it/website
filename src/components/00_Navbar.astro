@@ -41,12 +41,12 @@ const getUrl = (url: string) => { if (url.startsWith('#') || url.startsWith('jav
       <!-- Right Group -->
       <div class="flex items-center space-x-4">
         <div class="relative">
-          <button id="cartButton" class="text-primary-600 hover:text-primary">
+          <a href={`/${language}/customize-your-diet`} class="text-primary-600 hover:text-primary">
             <Fragment set:html={ShoppingBagIcon} />
             <div id="cartCount" class="absolute bottom-0 right-0 bg-[#98C47C] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
               0
             </div>
-          </button>
+          </a>
         </div>
 
         <!-- Desktop Buttons -->
@@ -153,17 +153,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const loginButtons = document.querySelectorAll('#loginButton');
   const loginModal = document.getElementById('loginModal');
   const languageButtons = document.querySelectorAll('[data-lang]');
-  const cartButton = document.getElementById('cartButton');
   const cartCount = document.getElementById('cartCount');
 
   let count = parseInt(localStorage.getItem('cartCount') || '0');
   cartCount.textContent = count;
-
-  cartButton.addEventListener('click', () => {
-    count = (count + 1) % 10;
-    localStorage.setItem('cartCount', count);
-    cartCount.textContent = count;
-  });
 
   loginButtons.forEach(btn => btn.addEventListener('click', () => loginModal.classList.remove('hidden')));
   window.closeLoginModal = () => loginModal.classList.add('hidden');

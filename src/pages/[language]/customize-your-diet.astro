@@ -1,0 +1,27 @@
+---
+export function getStaticPaths() {
+  return [
+    { params: { language: 'en' } },
+    { params: { language: 'fi' } },
+    { params: { language: 'sv' } },
+  ];
+}
+const { language = "fi" } = Astro.params;
+
+import { API_BASE_URL } from '../../config/api';
+import Layout from '../../layouts/Layout.astro';
+import Navbar from '../../components/00_Navbar.astro';
+import Footer from '../../components/10_Footer.astro';
+import DietCustomizer from '../../components/diet-customizer/main';
+
+// const response = await fetch(`${API_BASE_URL}/api/web-pages?filters[NameId][$eq]=customize-your-diet&locale=${language}&pagination[limit]=1`);
+// const data = await response.json();
+// const { title, description } = data.data[0];
+const { title, description } = {title : "title", description: "description"}
+---
+
+<Layout title={title} description={description}>
+  <Navbar language={language} />
+  <DietCustomizer client:load language={language} />
+  <Footer language={language} />
+</Layout>
